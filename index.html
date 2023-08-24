@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Catalogue</title>
+    <link rel="stylesheet" href="NewsElement.css">
+    <style>
+        /* Style for the news website container */
+.newswebsite {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #87CEFA;
+    flex-wrap: wrap; /* Allows elements to wrap to the next row if necessary */
+    padding: 20px; /* Add some padding to the container */
+}
+
+/* Style for individual news elements */
+.newselement {
+    padding: 20px;
+    border: 2px solid #000;
+    width: 400px;
+    margin: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Style for news images */
+.newsimage {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+/* Style for news titles */
+.newselement h3 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+/* Style for news descriptions */
+.newselement p {
+    font-size: 1rem;
+    margin: 0;
+}
+</style>
+</head>
+<body>
+    <div class="newswebsite">
+        <?php
+        // Define the API endpoint
+        $api_url = 'https://newsapi.org/v2/top-headlines/?country=in&apiKey=270e03164e284f5095e944b267fab081'; // Replace with your API key
+
+        // Fetch news data from the API using cURL
+        $curl = curl_init($api_url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $news_json = curl_exec($curl);
+
+        if ($news_json !== false) {
+            $news_data = json_decode($news_json, true);
+
+            // Check if the JSON was successfully decoded and contains articles
+            if ($news_data !== null && isset($news_data['articles'])) {
+                $articles = $news_data['articles'];
+
+                foreach ($articles as $article) {
+                    ?>
+                    <div class="newselement">
+                        <img class="newsimage" src="<?php echo $article['urlToImage']; ?>" alt="<?php echo $article['title']; ?>">
+                        <h3><a href="<?php echo $article['url']; ?>"><?php echo $article['title']; ?></a></h3>
+                        <p><?php echo $article['description']; ?></p>
+                    </div>
+                    <?php
+                }
+            } else {
+                echo "Error: No articles found in the API response.";
+            }
+        } else {
+            echo "Error fetching news data from the API: " . curl_error($curl);
+        }
+
+        // Close the cURL session
+        curl_close($curl);
+        ?>
+    </div>
+</body>
+</html>
